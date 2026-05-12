@@ -146,7 +146,7 @@ impl Rng {
 
     /// Generates a random `u64`.
     #[inline]
-    fn gen_u64(&mut self) -> u64 {
+    pub fn gen_u64(&mut self) -> u64 {
         // Constants for WyRand taken from: https://github.com/wangyi-fudan/wyhash/blob/master/wyhash.h#L151
         // Updated for the final v4.2 implementation with improved constants for better entropy output.
         const WY_CONST_0: u64 = 0x2d35_8dcc_aa6c_78a5;
