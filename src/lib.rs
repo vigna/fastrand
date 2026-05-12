@@ -152,7 +152,7 @@ impl Rng {
 
     /// Generates a random `u64`.
     #[inline]
-    fn gen_u64(&mut self) -> u64 {
+    pub fn gen_u64(&mut self) -> u64 {
         const MWC_A1: u64 = 0xffebb71d94fcdaf9;
 
         let result = self.x ^ self.x << 32;
