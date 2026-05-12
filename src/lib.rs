@@ -129,18 +129,16 @@ pub use global_rng::*;
 /// A random number generator.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Rng {
-    x: u64,
-    y: u64,
-    c: u64,
+    s0: u64,
+    s1: u64,
 }
 
 impl Clone for Rng {
     /// Clones the generator by creating a new generator with the same seed.
     fn clone(&self) -> Rng {
         Rng {
-            x: self.x,
-            y: self.y,
-            c: self.c,
+            s0: self.s0,
+            s1: self.s1,
         }
     }
 }
@@ -155,15 +153,14 @@ impl Rng {
     /// Generates a random `u64`.
     #[inline]
     fn gen_u64(&mut self) -> u64 {
-        const MWC_A2: u64 = 0xffa04e67b3c95d86;
-        let result = self.y;
+        let s0 = self.s0;
+        let mut s1 = self.s1;
+        let result = (s0.wrapping_add(s1)).rotate_left(17).wrapping_add(s0);
 
-        let t = (MWC_A2 as u128)
-            .wrapping_mul(self.x as u128)
-            .wrapping_add(self.c as u128);
-        self.x = self.y;
-        self.y = t as u64;
-        self.c = (t >> 64) as u64;
+        s1 ^= s0;
+        self.s0 = s0.rotate_left(49) ^ s1 ^ (s1 << 21); // a, b
+        self.s1 = s1.rotate_left(28); // c
+
         result
     }
 
@@ -300,9 +297,8 @@ impl Rng {
     #[must_use = "this creates a new instance of `Rng`; if you want to initialize the thread-local generator, use `fastrand::seed()` instead"]
     pub const fn with_seed(seed: u64) -> Self {
         Rng {
-            x: seed,
-            y: seed,
-            c: 1,
+            s0: seed,
+            s1: seed ^ 0x9e3779b97f4a7c15,
         }
     }
 
@@ -552,8 +548,8 @@ impl Rng {
     /// Initializes this generator with the given seed.
     #[inline]
     pub fn seed(&mut self, seed: u64) {
-        self.c = 1;
-        self.x = seed;
+        self.s0 = seed;
+        self.s1 = seed ^ 0x9e3779b97f4a7c15;
     }
 
     /// Choose an item from an iterator at random.
