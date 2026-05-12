@@ -148,7 +148,7 @@ impl Rng {
     #[inline]
     fn gen_u64(&mut self) -> u64 {
         let result = self.0;
-        self.0 += 1;
+        self.0 = self.0.wrapping_add(1);
         result
     }
 
