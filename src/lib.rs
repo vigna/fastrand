@@ -152,7 +152,7 @@ impl Rng {
 
     /// Generates a random `u64`.
     #[inline]
-    fn gen_u64(&mut self) -> u64 {
+    pub fn gen_u64(&mut self) -> u64 {
         let s0 = self.s0;
         let mut s1 = self.s1;
         let result = (s0.wrapping_add(s1)).rotate_left(17).wrapping_add(s0);
