@@ -1,9 +1,10 @@
 //! A simple and fast random number generator.
 //!
-//! The implementation uses [Marsaglia multiply-with-carry generator with 192
-//! bits of state](https://prng.di.unimi.it/MWC192.c), a simple and fast
-//! generator but **not** cryptographically secure. The generator has a period
-//! of ≈2¹⁹¹.
+//! The implementation uses [MWC192X], a Marsaglia multiply-with-carry
+//! generator with 192 bits of state whose output is scrambled by xoring it
+//! with the carry, as described in “[Scrambled Multiply-with-Carry
+//! Pseudorandom Number Generators]”. It is a simple and fast generator but
+//! **not** cryptographically secure. The generator has a period of ≈2¹⁹¹.
 //!
 //! # Examples
 //!
@@ -97,6 +98,8 @@
 //! entropy sources and seed the global RNG. If the `js` feature is not enabled, the global RNG will
 //! use a predefined seed.
 //!
+//! [MWC192X]: https://prng.di.unimi.it/MWC192X.c
+//! [Scrambled Multiply-with-Carry Pseudorandom Number Generators]: https://arxiv.org/abs/2610.27313
 //! [`fastrand-contrib`]: https://crates.io/crates/fastrand-contrib
 //! [`getrandom`]: https://crates.io/crates/getrandom
 
@@ -157,9 +160,10 @@ impl Rng {
     /// Generates a random `u64`.
     #[inline]
     fn gen_u64(&mut self) -> u64 {
-        // Constant from https://prng.di.unimi.it/MWC192.c
-        const MWC_A2: u64 = 0xffa04e67b3c95d86;
-        let result = self.y;
+        // Constant from https://prng.di.unimi.it/MWC192X.c
+        const MWC_A2: u64 = 0xff4e24dd418f5433;
+        // The scrambler X: the most recent digit xored with the carry
+        let result = self.y ^ self.c;
 
         let t = (MWC_A2 as u128)
             .wrapping_mul(self.x as u128)
@@ -405,11 +409,10 @@ impl Rng {
         // which u64->float conversion must be implemented in software.
         //
         // There is still some remaining bias in the int-to-float conversion, because
-        // nonzero numbers <=2^(-64) are never generated, even though they are
-        // expressible in f32. However, at this point the bias in int-to-float conversion
-        // is no larger than the bias in the underlying generator: since it only
-        // has a 64-bit state, it necessarily already have biases of at least 2^(-64)
-        // probability.
+        // nonzero numbers smaller than 2^(-63) are never generated, even though they
+        // are expressible in f32. However, together they have probability 2^(-63), so
+        // the bias is negligible: one would have to wait about 2^63 calls to expect
+        // to see one of them.
         //
         // See e.g. Section 3.1 of Thomas, David B., et al. "Gaussian random number generators,
         // https://www.doc.ic.ac.uk/~wl/papers/07/csur07dt.pdf, for background.

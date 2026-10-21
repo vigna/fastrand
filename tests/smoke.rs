@@ -274,6 +274,27 @@ fn with_seed() {
 }
 
 #[test]
+fn with_seed_reference() {
+    // Produced with the reference implementation
+    // https://prng.di.unimi.it/MWC192X.c, setting x and y to the first two
+    // outputs of SplitMix64 seeded with 42, and c to 1.
+    let expected = [
+        0x28efe333b266f102,
+        0x07573657c1a55847,
+        0xa650bfb788e891de,
+        0x55418c564c40b35f,
+        0x0aa9ce651d790271,
+        0x5e8b1f99ab30b11b,
+        0x3f7be43a768efb61,
+        0x085ae56711a6ea38,
+    ];
+    let mut rng = fastrand::Rng::with_seed(42);
+    for &e in &expected {
+        assert_eq!(rng.u64(..), e);
+    }
+}
+
+#[test]
 fn choose_multiple() {
     let mut a = fastrand::Rng::new();
     let mut elements = (0..20).collect::<Vec<_>>();

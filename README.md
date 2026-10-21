@@ -11,9 +11,14 @@ https://docs.rs/fastrand)
 
 A simple and fast random number generator.
 
-The implementation uses a [Marsaglia multiply-with-carry generator with 192 bits
-of state](https://prng.di.unimi.it/MWC192.c), a simple and fast generator but
-**not** cryptographically secure.
+The implementation uses [MWC192X], a Marsaglia multiply-with-carry generator
+with 192 bits of state whose output is scrambled by xoring it with the carry,
+as described in “[Scrambled Multiply-with-Carry Pseudorandom Number
+Generators]”. It is a simple and fast generator but **not** cryptographically
+secure.
+
+[MWC192X]: https://prng.di.unimi.it/MWC192X.c
+[Scrambled Multiply-with-Carry Pseudorandom Number Generators]: https://arxiv.org/abs/2610.27313
 
 ## Examples
 
