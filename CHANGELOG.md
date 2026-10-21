@@ -4,6 +4,10 @@
   generator with 192 bits of state. (#129)
 - Removed `get_seed` and `Rng::get_seed`. (#129)
 
+# Version 2.5.0
+
+- Update `getrandom` to 0.4. (#131)
+
 # Version 2.4.1
 
 - Fix build failure with `js` feature. (#125)
